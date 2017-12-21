@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use App\Config;
+
 /**
  * View
  *
@@ -45,7 +47,12 @@ class View
 
         if ($twig === null) {
             $loader = new \Twig_Loader_Filesystem(dirname(__DIR__) . '/App/Views');
-            $twig = new \Twig_Environment($loader);
+            $twig = new \Twig_Environment($loader, array(
+                'cache' => "../".Config::CACHE,
+                'auto_reload' => Config::RELOAD
+            ));
+            // Enable compression - Very Useful
+            $twig->addExtension(new \nochso\HtmlCompressTwig\Extension());
         }
 
         echo $twig->render($template, $args);
