@@ -1,51 +1,56 @@
 # Welcome to the PHP MVC framework
 
-This is a simple MVC framework for building web applications in PHP. It's free and [open-source](LICENSE).
+This is an [open-source](LICENSE), simple, partially naked MVC framework for building web applications in PHP. It was first created by [daveh](https://github.com/daveh/php-mvc), but I have modified it making it 
+a boitlerplate for all my future projects.
 
-It was created for the [Write PHP like a pro: build an MVC framework from scratch](https://www.udemy.com/php-mvc-from-scratch/?couponCode=githubpa1) course. The course explains how the framework is put together, building it step-by-step, from scratch. If you've taken the course, then you'll already know how to use it. If not, please follow the instructions below.
 
 ## Starting an application using this framework
 
 1. First, download the framework, either directly or by cloning the repo.
 1. Run **composer update** to install the project dependencies.
 1. Configure your web server to have the **public** folder as the web root.
-1. Open [App/Config.php](App/Config.php) and enter your database configuration data.
-1. Create routes, add controllers, views and models.
+1. Open [.env](.env) and enter your database configuration data. Modifying this file instead of the [App/Config.php](App/Config.php) is pretty useful when working with multiple enviroments (e.g separate developement and production server.)
+1. Create routes [App/Routes.php](App/Routes.php), add controllers, views and models.
 
 See below for more details.
 
 ## Configuration
 
-Configuration settings are stored in the [App/Config.php](App/Config.php) class. Default settings include database connection data and a setting to show or hide error detail. You can access the settings in your code like this: `Config::DB_HOST`. You can add your own configuration settings in here.
+Configuration settings are stored in both [.env](.env) file and [App/Config.php](App/Config.php) class. Default settings include database connection data, twig cache location and live auto reload ..etc. You can access the settings in your code like this: `Config::DB_HOST` or `Config::env('DB_HOST')`.
+The `function env('setting')` can be used to retrieve the .env stored settings. If none found, it falls back to the config class const.
+You can add your own configuration settings to the [.env](.env) file or [App/Config.php](App/Config.php).
 
 ## Routing
 
-The [Router](Core/Router.php) translates URLs into controllers and actions. Routes are added in the [front controller](public/index.php). A sample home route is included that routes to the `index` action in the [Home controller](App/Controllers/Home.php).
+The [Router](Core/Router.php) translates URLs into controllers and actions. Routes are added in the [front controller](App/Routes.php). A sample home route is included that routes to the `index` action in the [Home controller](App/Controllers/Home.php).
 
-Routes are added with the `add` method. You can add fixed URL routes, and specify the controller and action, like this:
+Routes are added with the `repond` method. You can add fixed URL routes, and specify the controller and action, like this:
 
 ```php
-$router->add('', ['controller' => 'Home', 'action' => 'index']);
-$router->add('posts/index', ['controller' => 'Posts', 'action' => 'index']);
+$router->respond('GET', '/hello-world', function () {
+    return 'Hello World!';
+});
 ```
 
 Or you can add route **variables**, like this:
 
 ```php
-$router->add('{controller}/{action}');
+$router->respond('/[:name]', function ($request) {
+    return 'Hello ' . $request->name;
+});
 ```
 
-In addition to the **controller** and **action**, you can specify any parameter you like within curly braces, and also specify a custom regular expression for that parameter:
+To specify a **controller** and **action** foreach route, use the following method:
 
 ```php
-$router->add('{controller}/{id:\d+}/{action}');
+$router->respondWithController('GET', '/[:name]', 'controller@action');
 ```
-
-You can also specify a namespace for the controller:
-
+in this case the route parameter can be accessed using
 ```php
-$router->add('admin/{controller}/{action}', ['namespace' => 'Admin']);
+$request->name
 ```
+
+Since I'm using the [Klein.php](https://github.com/klein/klein.php) router, please refer to the documentation for more info about how to use.
 
 ## Controllers
 
@@ -54,8 +59,9 @@ Controllers respond to user actions (clicking on a link, submitting a form etc.)
 Controllers are stored in the `App/Controllers` folder. A sample [Home controller](App/Controllers/Home.php) included. Controller classes need to be in the `App/Controllers` namespace. You can add subdirectories to organise your controllers, so when adding a route for these controllers you need to specify the namespace (see the routing section above).
 
 Controller classes contain methods that are the actions. To create an action, add the **`Action`** suffix to the method name. The sample controller in [App/Controllers/Home.php](App/Controllers/Home.php) has a sample `index` action.
+**P.S: after adding the klein, it doesn't really matter, you can name your methods however you want.**
 
-You can access route parameters (for example the **id** parameter shown in the route examples above) in actions via the `$this->route_params` property.
+You can access route parameters (for example the **name** parameter shown in the route examples above) in actions via the `$request->name` property.
 
 ### Action filters
 
@@ -107,6 +113,15 @@ View::renderTemplate('Home/index.html', [
 
 A sample Twig template is included in [App/Views/Home/index.html](App/Views/Home/index.html) that inherits from the base template in [App/Views/base.html](App/Views/base.html).
 
+*HTML Compression* for Twig:
+I've added an HTML Compression extention to twig, so don't forget to add the following tags before and after your html.
+
+```html
+    {% htmlcompress %} 
+        <html>...</html>
+    {% endhtmlcompress %}
+```
+
 ## Models
 
 Models are used to get and store data in your application. They know nothing about how this data is to be presented in the views. Models extend the `Core\Model` class and use [PDO](http://php.net/manual/en/book.pdo.php) to access the database. They're stored in the `App/Models` folder. A sample user model class is included in [App/Models/User.php](App/Models/User.php). You can get the PDO database connection instance like this:
@@ -117,12 +132,47 @@ $db = static::getDB();
 
 ## Errors
 
+I'm using Whoops to handle errors. It's better <3. But you can still use this by removing this section from index.php [L39 - L43] :
+```php
+// Whoops error handling
+$whoops = new Whoops\Run();
+// Set Whoops as the default error and exception handler used by PHP:
+$whoops->register();
+$whoops->pushHandler(new Whoops\Handler\PrettyPageHandler());
+```
+And replacing it with this :
+```php
+error_reporting(E_ALL);
+set_error_handler('Core\Error::errorHandler');
+set_exception_handler('Core\Error::exceptionHandler');
+```
 If the `SHOW_ERRORS` configuration setting is set to `true`, full error detail will be shown in the browser if an error or exception occurs. If it's set to `false`, a generic message will be shown using the [App/Views/404.html](App/Views/404.html) or [App/Views/500.html](App/Views/500.html) views, depending on the error.
 
 ## Web server configuration
 
 Pretty URLs are enabled using web server rewrite rules. An [.htaccess](public/.htaccess) file is included in the `public` folder. Equivalent nginx configuration is in the [nginx-configuration.txt](nginx-configuration.txt) file.
 
----
+## Built With
 
-Signup for the course [here](https://www.udemy.com/php-mvc-from-scratch/?couponCode=githubpa1) on Udemy and understand how this framework is built from scratch, putting it all together step by step.
+* [PHP 💕](http://php.net/)
+
+## Used libraries
+
+* [twig/twig](https://github.com/twig/twig)
+* [nochso/html-compress-twig](https://github.com/nochso/html-compress-twig)
+* [filp/whoops](https://github.com/filp/whoops)
+* [klein/klein ❤️](https://github.com/klein/klein)
+* [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv)
+* [monolog/monolog](https://github.com/monolog/monolog)
+
+## Authors
+
+* **Dave Hollingworth** - *Initial work* - [php-mvc](https://github.com/daveh)
+* **Anas Mazouni** - [php-mvc-boilerplate](https://github.com/stormiix)
+
+See also the list of [contributors](https://github.com/stormiix/php-mvc-boilerplate/contributors) who participated in this project.
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
