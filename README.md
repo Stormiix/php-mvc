@@ -1,5 +1,12 @@
 # Welcome to the PHP MVC framework
 
+[![GitHub stars](https://img.shields.io/github/stars/Stormiix/php-mvc-boilerplate.svg)](https://github.com/Stormiix/php-mvc-boilerplate/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Stormiix/php-mvc-boilerplate.svg?style=flat)](https://github.com/Stormiix/php-mvc-boilerplate/network)
+![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
+[![HitCount](http://hits.dwyl.io/stormiix/php-mvc-boilerplate.svg)](http://hits.dwyl.io/stormiix/php-mvc-boilerplate)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/stormiix/php-mvc-boilerplate/issues)
+
+
 This is an [open-source](LICENSE), simple, partially naked MVC framework for building web applications in PHP. It was first created by [daveh](https://github.com/daveh/php-mvc), but I have modified it making it 
 a boitlerplate for all my future projects.
 
