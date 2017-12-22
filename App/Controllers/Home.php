@@ -17,7 +17,7 @@ class Home extends \Core\Controller
      *
      * @return void
      */
-    public function indexAction($request, $response, $service)
+    public function index($request, $response, $service)
     {
         View::renderTemplate('Home/index.html', [
             'name'    => $request->name

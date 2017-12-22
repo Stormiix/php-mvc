@@ -65,8 +65,7 @@ Controllers respond to user actions (clicking on a link, submitting a form etc.)
 
 Controllers are stored in the `App/Controllers` folder. A sample [Home controller](App/Controllers/Home.php) included. Controller classes need to be in the `App/Controllers` namespace. You can add subdirectories to organise your controllers, so when adding a route for these controllers you need to specify the namespace (see the routing section above).
 
-Controller classes contain methods that are the actions. To create an action, add the **`Action`** suffix to the method name. The sample controller in [App/Controllers/Home.php](App/Controllers/Home.php) has a sample `index` action.
-**P.S: after adding the klein, it doesn't really matter, you can name your methods however you want.**
+Controller classes contain methods that can be called through the router. The sample controller in [App/Controllers/Home.php](App/Controllers/Home.php) has a sample `index` action.
 
 You can access route parameters (for example the **name** parameter shown in the route examples above) in actions via the `$request->name` property.
 
@@ -96,8 +95,16 @@ To stop the originally called action from executing, return `false` from the bef
 protected function after()
 {
 }
-```
 
+```
+IMPORTANT : In order to use the before and after methods implemented, make sure to add **Action** suffix to the called method in the router.
+```php
+// Example: the controller has a method called show()
+// to execute the before() and after() methods, the route should be something like this:
+$router->respondWithController('GET', '/[:name]', 'controller@showAction');
+// If you don't want to use the before and after methods, simply do this.
+$router->respondWithController('GET', '/[:name]', 'controller@action');
+```
 ## Views
 
 Views are used to display information (normally HTML). View files go in the `App/Views` folder. Views can be in one of two formats: standard PHP, but with just enough PHP to show the data. No database access or anything like that should occur in a view file. You can render a standard PHP view in a controller, optionally passing in variables, like this:
