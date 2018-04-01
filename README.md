@@ -5,7 +5,7 @@
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
 [![HitCount](http://hits.dwyl.io/stormiix/php-mvc-boilerplate.svg)](http://hits.dwyl.io/stormiix/php-mvc-boilerplate)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/stormiix/php-mvc-boilerplate/issues)
-[![Donations Badge](https://stormix.co/donate/images/badge.svg)]({https://stormix.co/donate/})
+[![Donations Badge](https://stormix.co/donate/images/badge.svg)](https://stormix.co/donate/)
 
 
 This is an [open-source](LICENSE), simple, partially naked MVC framework for building web applications in PHP. It was first created by [daveh](https://github.com/daveh/php-mvc), but I have modified it making it 
